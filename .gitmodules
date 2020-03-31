@@ -1,0 +1,3 @@
+[submodule "frida-agent"]
+	path = frida-agent
+	url = https://github.com/oleavr/frida-agent-example
