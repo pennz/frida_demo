@@ -5,3 +5,16 @@ npm install
 frida -U -f com.example.android --no-pause -l _agent.js
 
 npm run watch
+
+# for pretiers
+#
+yarn add prettier --dev --exact
+# or globally
+yarn global add prettier
+
+# ororor 
+npm install --save-dev --save-exact prettier
+# or globally
+npm install --global prettier
+
+
