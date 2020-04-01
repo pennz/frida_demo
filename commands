@@ -108,13 +108,30 @@ make
 ./sslsplit -h
 
 #To test that SSLsplit works, setup a WIFI connection on your Mac, setup port forwarding, and then type in the following commands in Terminal:
-openssl genrsa -out ca.key 2048
-openssl req -new -x509 -days 45 -key ca.key -out ca.crt
+#openssl genrsa -out ca.key 2048
+#openssl req -new -x509 -days 45 -key ca.key -out ca.crt
 
 #This will produce Certificate Authority private key file and its certificate to be used by SSLsplit. Then launch HTTPS monitoring via:
 sudo ./sslsplit -k ca.key -c ca.crt -D https 127.0.0.1 8000
 #Examine console output once some client connects. SSLsplit has options to log every connection into separate file for more detailed analysis.
+cat >x509v3ca.cnf <<'EOF'
 
+[ req ]
+distinguished_name = reqdn
+
+[ reqdn ]
+
+[ v3_ca ]
+basicConstraints = CA:TRUE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+EOF
+
+openssl genrsa -out ca.key 2048
+openssl req -new -nodes -x509 -sha256 -out ca.crt -key ca.key \
+        -config x509v3ca.cnf -extensions v3_ca \
+        -subj '/O=SSLsplit Root CA/CN=SSLsplit Root CA/' \
+        -set_serial 0 -days 3650
 #What to do next
 #Every year more and more internet-capable (smart) devices hitting a market at the same time mobile device usage grows rapidly overtaking desktop use. It only makes sense for security to follow that trend. Setups provided above should come in very handy.
 #Now that you can see an encrypted traffic in plain text, the fun can begin.
