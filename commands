@@ -18,3 +18,117 @@ npm install --save-dev --save-exact prettier
 npm install --global prettier
 
 
+Looking for vulnerabilities in mobile applications and smart home devices presents multiple challenges. One of which is ability to intercept and edit encrypted communication between a device and the server it talks to.
+Knowing the content of communication is very important when you are looking for possible sensitive information leak or a surface for an attack.
+This post shows how to setup an access point with proxy server that would allow for an analysis and manipulation of encrypted communication of mobile devices or smart home devices.
+The tools that we recommend to use in the setup include mitmproxy on Linux (Debian) and SSLsplit on Mac OS X (El Capitan)
+
+mitmproxy 
+mitmproxy is an SSL-capable proxy that works as man-in-the-middle for HTTP and HTTPS communication. It is a very good interactive tool that allows for monitoring, modifying and replaying of HTTP/HTTPS traffic that goes through it.
+To be able eavesdrop and modify HTTPS communication, mitmproxy pretends to be the server to the client and the client to the server, while positioned in the middle it decodes traffic from both of them. Mitmproxy generates certificates on-the-fly to fool the client into believing that they are communicating with the server. To make the client trust newly forged certificates without raising warnings, it is necessary to manually register mitmproxy as a trusted CA with the device.
+
+SSLsplit 
+SSLsplit is another good tool for man-in-the-middle attack. In addition to supporting HTTP and HTTPS, SSLsplit also allows for interception of plain SSL and plain TCP communications. 
+SSLsplit uses the same technique as mitmproxy to generate forged certificates on-the-fly.
+
+First step is to configure WiFi access point from your laptop
+Linux 
+Quickest way to setup WiFi access point on Linux is through visual interface of NetworkManager
+Network - > WiFi -> Use as Hotspot
+
+Mac OS X
+Open System Preferences, go to Sharing. There click Wi-Fi Options and set name, channel, encryption type and a password for you network. Click OK and make sure checkbox to the left of Wi-Fi is checked, then turn on Internet Sharing. This will provide clients with internet connection from your Mac.
+Linux VM
+Guest OS from within VM cannot take control of a build-in Wifi adapter. To turn on AP WiFi hotspot, you have to use USB Wifi adapter. The rest of configuration is the same as Linux directly installed on a hardware.
+
+Now that a WiFi access point is up, we can setup man-in-the-middle applications
+Mitmproxy on Linux (Debian)
+Installation of mitmproxy
+sudo apt-get install python-pip python-dev libffi-dev libssl-dev libxml2-dev libxslt1-dev libjpeg8-dev zlib1g-dev
+sudo pip install mitmproxy
+
+Port redirection
+By default mitmproxy listens on TCP port 8080. To allow for interception of HTTP and HTTPS, ports 80 and 443 need to be forwarded to the port mitmproxy listens on.
+sudo sysctl -w net.ipv4.ip_forward=1
+sudo iptables -t nat -A PREROUTING -i wlan1 -p tcp --dport 443 -j REDIRECT --to-port 8080
+sudo iptables -t nat -A PREROUTING -i wlan1 -p tcp --dport 80 -j REDIRECT --to-port 8080
+Starting mitmproxy
+sudo mitmproxy -T --host -e
+
+Register mitmproxy as a trusted CA with the device
+The simplest way to register mitmproxy certificate on a device is to visit mitm.it URL after connecting the device through mitmproxy. The web page that will open, offers mitmproxy certificate to be installed. Accept that certificate.
+
+
+
+
+
+
+
+
+
+
+Now you are ready to intercept HTTP and HTTPS communication.
+
+Intercept communication
+Open any interactive application (such as Twitter, Facebook or shopping app) on your device. You will see that mitmproxy window will fill up with HTTP and HTTPS packets that are sent back and forth between device and a server.
+
+
+
+You can learn details of mitmproxy capabilities by reading through help pages found by typing "?"
+
+#SSLsplit on Mac OS X (El Capitan)
+#Port redirection
+#In Terminal type in:
+sudo sysctl -w net.inet.ip.forwarding=1
+sudo vi /etc/pf.conf
+#Add these lines to the file after the rdr-anchor "com.apple/*" and save it:
+
+#rdr pass on bridge100 inet proto tcp from any to any port 443 -> 127.0.0.1 port 8000
+
+#This will forward packets sent to TCP port 443 (any destination) to 127.0.0.1:8000 where SSLsplit will be listening.
+#Then issue command to re-load configuration:
+sudo pfctl -F all -f /etc/pf.conf
+
+#Installation of SSLsplit
+#Let's make SSLsplit work on Mac OS X El Capitan from source:
+
+#Download the latest version via:
+curl -O http://mirror.roe.ch/rel/sslsplit/sslsplit-0.5.0.tar.bz2
+#Unpack:
+tar -jxf sslsplit-0.5.0.tar.bz2
+#Download OpenSSL - note the version used:
+curl -O http://openssl.org/source/old/1.0.1/openssl-1.0.1g.tar.gz
+#Unpack:
+tar zxf openssl-1.0.1g.tar.gz
+#Build OpenSSL first and install it (will land under /usr/local/ssl). To build, configure with ./Configure darwin64-x86_64-cc, then make and make install. For install to succeed, I had to remove the install_docs step from the Makefile. Download, build and install libevent-2.0.22-stable. Then build SSLsplit:
+cd sslsplit-0.5.0
+export OPENSSL_BASE=/usr/local/ssl/
+make
+#Now there should be a binary sslsplit compiled for 64-bit. To get help type in:
+./sslsplit -h
+
+#To test that SSLsplit works, setup a WIFI connection on your Mac, setup port forwarding, and then type in the following commands in Terminal:
+openssl genrsa -out ca.key 2048
+openssl req -new -x509 -days 45 -key ca.key -out ca.crt
+
+#This will produce Certificate Authority private key file and its certificate to be used by SSLsplit. Then launch HTTPS monitoring via:
+sudo ./sslsplit -k ca.key -c ca.crt -D https 127.0.0.1 8000
+#Examine console output once some client connects. SSLsplit has options to log every connection into separate file for more detailed analysis.
+
+#What to do next
+#Every year more and more internet-capable (smart) devices hitting a market at the same time mobile device usage grows rapidly overtaking desktop use. It only makes sense for security to follow that trend. Setups provided above should come in very handy.
+#Now that you can see an encrypted traffic in plain text, the fun can begin.
+#You can start from your favorite mobile application and review if any sensitive or unexpected data is being sent to/from a server; you can pentest smart devices using communication as an attack surface; you can look for hidden APIs; or confirm that companies use best security practices in their software development.  
+#There are discussions going on about law enforcement access to encrypted data and communications on mobile devices. Information presented in this blog does not allow to intercept encrypted communications unless the user has explicitly allowed forged CA certificate installation on his device and connected to an attacker-controlled hotspot. However there maybe implementation errors in software which will allow exploitation of encrypted communications.
+#
+#By Vladimir Zakharevich and Martin Rakhmanov
+
+
+# adb shell dumpsys battery unplug
+#     adb shell dumpsys battery set ac 1
+#         adb shell dumpsys battery set usb 1
+#             adb shell dumpsys battery set wireless 1
+#
+#
+# echo $1 > /sys/devices/qpnp-charger-14/power_supply/battery/charging_enabled
+#  echo 0 > /sys/class/power_supply/usb/device/charge
