@@ -87,3 +87,9 @@ in the range 1MB.
 ```
 Stalker works one block at a time.
 
+# sslsplit
+
+the problem:
+Peeking did not yield a (truncated) ClientHello message, aborting connection
+
+Just remember that I have not set up the iptables.

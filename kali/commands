@@ -1,0 +1,36 @@
+#Examine console output once some client connects. SSLsplit has options to log every connection into separate file for more detailed analysis.
+cat >x509v3ca.cnf <<'EOF'
+
+[ req ]
+distinguished_name = reqdn
+
+[ reqdn ]
+
+[ v3_ca ]
+basicConstraints = CA:TRUE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+EOF
+
+openssl genrsa -out ca.key 2048
+openssl req -new -nodes -x509 -sha256 -out ca.crt -key ca.key \
+        -config x509v3ca.cnf -extensions v3_ca \
+        -subj '/O=SSLsplit Root CA/CN=SSLsplit Root CA/' \
+        -set_serial 0 -days 3650
+#What to do next
+#Every year more and more internet-capable (smart) devices hitting a market at the same time mobile device usage grows rapidly overtaking desktop use. It only makes sense for security to follow that trend. Setups provided above should come in very handy.
+#Now that you can see an encrypted traffic in plain text, the fun can begin.
+#You can start from your favorite mobile application and review if any sensitive or unexpected data is being sent to/from a server; you can pentest smart devices using communication as an attack surface; you can look for hidden APIs; or confirm that companies use best security practices in their software development.  
+#There are discussions going on about law enforcement access to encrypted data and communications on mobile devices. Information presented in this blog does not allow to intercept encrypted communications unless the user has explicitly allowed forged CA certificate installation on his device and connected to an attacker-controlled hotspot. However there maybe implementation errors in software which will allow exploitation of encrypted communications.
+#
+#By Vladimir Zakharevich and Martin Rakhmanov
+
+
+# adb shell dumpsys battery unplug
+#     adb shell dumpsys battery set ac 1
+#         adb shell dumpsys battery set usb 1
+#             adb shell dumpsys battery set wireless 1
+#
+#
+# echo $1 > /sys/devices/qpnp-charger-14/power_supply/battery/charging_enabled
+#  echo 0 > /sys/class/power_supply/usb/device/charge

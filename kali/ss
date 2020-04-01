@@ -1,0 +1,6 @@
+sslsplit -k ca.key -c ca.crt \
+        -l connect.log -S /tmp \
+        https ::1       10443 www.example.org 443 \
+        https 127.0.0.1 10443 www.example.org 443 \
+        https 192.168.56.102 10443 www.example.org 443
+
