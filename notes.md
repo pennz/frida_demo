@@ -93,3 +93,7 @@ the problem:
 Peeking did not yield a (truncated) ClientHello message, aborting connection
 
 Just remember that I have not set up the iptables.
+
+
+https://re4son-kernel.com/re4son-pi-kernel/  
+for header for our wireless card
