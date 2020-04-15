@@ -97,3 +97,94 @@ Just remember that I have not set up the iptables.
 
 https://re4son-kernel.com/re4son-pi-kernel/  
 for header for our wireless card
+
+[xda links](https://forum.xda-developers.com/pixel/help/run-setupwizard-t3527414)
+
+
+
+So, just wanted to circle back... Contrary to the above, it is indeed possible*and I was able to do it and reproduce it reliably.*Long story short, it was the following two commands that did the trick :
+
+1. adb shell
+su
+pm enable com.google.android.setupwizard/com.google.android.setupwizard.SetupWizardActivity 
+
+2. adb shell settings put secure user_setup_complete 0
+
+The first command is case sensitive (SetupWizardActivity)
+
+Thanks to this source for the help and guidance : http://android.stackexchange.com/que...g-command-line
+
+3. adb shell
+su
+am start -n com.google.android.setupwizard/com.google.android.setupwizard.SetupWizardActivity
+
+
+# docker android
+docker run --entrypoint "/bin/bash" -it -e USER_ID=501 -e GROUP_ID=501 -v /private/tmp/com.apple.launchd.2bMOgCd5gb/Listeners:/tmp/ssh_auth -e SSH_AUTH_SOCK=/tmp/ssh_auth -v /Users/v/works/android_build/build-kitkat.sh:/usr/local/bin/run.sh:ro -v /Users/v/works/android_build/aosp:/aosp -v /Users/v/works/android_build/ccache:/tmp/ccache kylemanna/aosp:latest
+docker exec -u aosp -it XXX bash
+
+# it works in taobao app
+frida ❯ frida -U --codeshare pcipolloni/universal-android-ssl-pinning-bypass-with-frida -f com.taobao.taobao
+     ____
+    / _  |   Frida 12.8.20 - A world-class dynamic instrumentation toolkit
+   | (_| |
+    > _  |   Commands:
+   /_/ |_|       help      -> Displays the help system
+   . . . .       object?   -> Display information about 'object'
+   . . . .       exit/quit -> Exit
+   . . . .
+   . . . .   More info at https://www.frida.re/docs/home/
+Spawned `com.taobao.taobao`. Use %resume to let the main thread start executing!
+[MX4::com.taobao.taobao]-> %resume
+[MX4::com.taobao.taobao]->
+[.] Cert Pinning Bypass/Re-Pinning
+[+] Loading our CA...
+[o] Our CA Info: CN=PortSwigger CA, OU=PortSwigger CA, O=PortSwigger, L=PortSwigger, ST=PortSwigger, C=PortSwigger
+[+] Creating a KeyStore for our CA...
+[+] Creating a TrustManager that trusts the CA in our KeyStore...
+[+] Our TrustManager is ready...
+[+] Hijacking SSLContext methods now...
+[-] Waiting for the app to invoke SSLContext.init()...
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[MX4::com.taobao.taobao]->
+[MX4::com.taobao.taobao]-> [o] App invoked javax.net.ssl.SSLContext.init...
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+[+] SSLContext initialized with our custom TrustManager!
+[o] App invoked javax.net.ssl.SSLContext.init...
+
+# for the pocket in our phone
+
+# for spacevim
+getpocket link
+https://download.eclipse.org/jdtls/milestones/0.53.0/repository/plugins/
+
+
+# so far
+we found dex, then to oat, then we find it links to libssl.so and something
+
+Finally, we see SSL_get_srtp_profiles and SSL_in_early_data is called
+--> much functions, need to get upper layer, easier to handle
+
+--> just use the java perform, found it might use the conscrypt library as upper layer
