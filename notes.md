@@ -189,3 +189,29 @@ Finally, we see SSL_get_srtp_profiles and SSL_in_early_data is called
 
 --> just use the java perform, found it might use the conscrypt library as upper layer
 Just use solution by frida code-share. If you just check the source code, it is too deep.
+
+
+base ❯ gradle check
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/Users/v/works/frida/frida-agent-example/conscrypt/build.gradle' line: 22
+
+* What went wrong:
+Plugin [id: 'org.ajoberstar.grgit', version: '3.1.1'] was not found in any of the following sources:
+
+- Gradle Core Plugins (plugin is not in 'org.gradle' namespace)
+- Plugin Repositories (could not resolve plugin artifact 'org.ajoberstar.grgit:org.ajoberstar.grgit.gradle.plugin:3.1.1')
+  Searched in the following repositories:
+    Gradle Central Plugin Repository
+
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output. Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 3s
+
+base ❯ gradle :conscrypt-benchmark-android:dependencies --configuration debugAndroidTestCompileClasspath
+# it dependcy is hard to solve... we just do what we want. code it
