@@ -178,7 +178,7 @@ public class c implements com.pocket.sdk2.api.d.b, e
     }
     
     public c a(final com.pocket.sdk2.api.d.b.a b) {
-        this.b = b; // 
+        this.b = b; // TODO check this.c = this.b.a()
         return this;
     }
     

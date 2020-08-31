@@ -19,8 +19,8 @@ public class j {
         if (i2 == null) {
             throw new RuntimeException("device may not be null");
         }
-        this.a = string;
-        this.b = string2;
+        this.a = string; // access tocken, called in TODO     this.g = new com.pocket.sdk2.api.a.j(this.g.a, a1.c, a0.c, a0.b);
+        this.b = string2; //guid, api/b/c.java
         this.c = i2;
         this.d = h2;
     }

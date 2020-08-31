@@ -179,3 +179,13 @@ Spawned `com.taobao.taobao`. Use %resume to let the main thread start executing!
 # for spacevim
 getpocket link
 https://download.eclipse.org/jdtls/milestones/0.53.0/repository/plugins/
+
+
+# so far
+we found dex, then to oat, then we find it links to libssl.so and something
+
+Finally, we see SSL_get_srtp_profiles and SSL_in_early_data is called
+--> much functions, need to get upper layer, easier to handle
+
+--> just use the java perform, found it might use the conscrypt library as upper layer
+Just use solution by frida code-share. If you just check the source code, it is too deep.

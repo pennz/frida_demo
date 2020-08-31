@@ -65,7 +65,7 @@ public class b {
         }
         if (((j)object22).a != null && ((a)((Object)object)).e) {
             void var1_4;
-            builder.appendQueryParameter("access_token", ((j)object22).a); // here
+            builder.appendQueryParameter("access_token", ((j)object22).a); // here --> we just get it after we login... ~ so we just use it TODO
             String string = String.valueOf(System.currentTimeMillis());
             String string2 = org.apache.a.c.f.a(16);
             if (((a)object).d != null) {
