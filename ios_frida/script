@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#frida-ps -Uia # find the name of the app you want to explore
+# pip install objection
+objection --gadget 'com.apple.stocks' explore
